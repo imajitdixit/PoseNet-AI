@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PoseNet AI | Human Pose Detector</title>
+
+  <!-- p5 & ml5 -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
+
+ <!---- <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top left, #1d4ed8, transparent 40%),
+                  radial-gradient(circle at bottom right, #d071a0, transparent 40%),
+                  linear-gradient(135deg, #0b1220, #0f172a);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -50px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent, rgba(255,255,255,0.06));
+      transform: rotate(25deg);
+      pointer-events: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .title {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      margin: 0;
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.16);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #bbf7d0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 16px rgba(34,197,94,0.6);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.4); opacity: 1; }
+    }
+
+    .status {
+      position: relative;
+      z-index: 2;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status b { color: #fff; }
+
+    .canvas-box {
+      position: relative;
+      z-index: 2;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.20);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 520px;
+    }
+
+    .note {
+      position: relative;
+      z-index: 2;
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .right h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .right p, .right li {
+      color: rgba(255,255,255,0.78);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    ul { padding-left: 18px; }
+
+    .mini-card {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+      .canvas-box { min-height: 420px; }
+    }
+  </style>
+-->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- LEFT -->
+    <div class="card">
+      <div class="header">
+        <div class="title">
+          <h1>PoseNet AI Pose Detector</h1>
+          <p class="sub">
+            Real-time human pose estimation using <b>p5.js</b> + <b>ml5.js</b>.
+          </p>
+        </div>
+
+        <div class="badge">
+          <span class="dot"></span>
+          Live Detection
+        </div>
+      </div>
+
+      <div class="status" id="statusBox">
+        <span><b>Status:</b> Initializing…</span>
+        <span id="fpsBox" style="opacity:0.8;">FPS: --</span>
+      </div>
+
+      <div class="canvas-box" id="canvasContainer">
+        <!-- p5 canvas injected here -->
+      </div>
+
+      <div class="note">
+        ⚡ If camera doesn’t start: open using <b>Live Server</b> and allow camera permission.
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card right">
+      <h2>Project Overview</h2>
+      <p>
+        This web app detects your body keypoints (nose, eyes, shoulders, elbows, hips, knees) and draws skeleton lines
+        in real-time.
+      </p>
+
+      <div class="mini-card">
+        <h2 style="margin:0 0 10px;">Features</h2>
+        <ul>
+          <li>✅ Webcam live feed</li>
+          <li>✅ Keypoints tracking</li>
+          <li>✅ Skeleton overlay</li>
+          <li>✅ Ready for fitness & posture projects</li>
+        </ul>
+      </div>
+
+      <div class="mini-card">
+        <h2 style="margin:0 0 10px;">Future Enhancements</h2>
+        <ul>
+          <li>Glasses overlay using eye keypoints</li>
+          <li>Cigar overlay using mouth keypoints</li>
+          <li>Screenshot & Save</li>
+        </ul>
+      </div>
+
+      <div class="mini-card">
+        <h2 style="margin:0 0 10px;">Made By</h2>
+        <p style="margin:0;">Ajit Dixit • PoseNet Project</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function setStatus(msg) {
+      document.getElementById("statusBox").children[0].innerHTML = "<b>Status:</b> " + msg;
+    }
+
+    // show basic FPS (optional)
+    let frames = 0, last = performance.now();
+    function updateFPS() {
+      frames++;
+      const now = performance.now();
+      if (now - last >= 1000) {
+        document.getElementById("fpsBox").innerText = "FPS: " + frames;
+        frames = 0;
+        last = now;
+      }
+      requestAnimationFrame(updateFPS);
+    }
+    updateFPS();
+
+    setStatus("Auto-starting camera…");
+  </script>
+
+  <!-- sketch.js at end -->
+  <script src="sketch.js"></script>
+</body>
+</html>
